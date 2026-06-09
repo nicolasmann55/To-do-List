@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEG Fuels – Work Tasks</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#1e2d5a;--navy-dark:#152044;--navy-light:#2a3f7a;
+    --silver:#8a9ab5;--silver-light:#c8d4e8;
+    --bg:#f0f3f8;--surface:#ffffff;--border:#d0d9e8;--border-hover:#8a9ab5;
+    --text:#1a2240;--text-muted:#5a6a88;--text-hint:#9aaabb;
+    --radius:10px;--radius-sm:6px;
+  }
+  @media(prefers-color-scheme:dark){:root{--bg:#0e1422;--surface:#161e30;--border:#243050;--border-hover:#3a4e78;--text:#d8e4f4;--text-muted:#7a90b8;--text-hint:#3a4e6a}}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+  .page{max-width:740px;margin:0 auto;padding:0 1.25rem 4rem}
+  .header-bar{background:var(--navy-dark);padding:0 1.25rem;margin:0 -1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .header-bar img{height:44px;padding:10px 0;display:block}
+  .header-bar .header-right{display:flex;flex-direction:column;align-items:flex-end;padding:10px 0}
+  .header-bar .header-title{font-size:15px;font-weight:600;color:#fff;letter-spacing:.02em}
+  .header-bar .header-sub{font-size:11px;color:var(--silver-light);opacity:.7;margin-top:1px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.75rem}
+  .stat{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:.85rem .75rem;text-align:center}
+  .stat-num{font-size:22px;font-weight:700;line-height:1;color:var(--navy)}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+  @media(prefers-color-scheme:dark){.stat-num{color:var(--silver-light)}}
+  .add-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem}
+  .add-card h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+  .add-card h2::before{content:'';display:inline-block;width:3px;height:14px;background:var(--navy);border-radius:2px}
+  @media(prefers-color-scheme:dark){.add-card h2{color:var(--silver-light)}.add-card h2::before{background:var(--silver-light)}}
+  .field{margin-bottom:.75rem}
+  .field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px;font-weight:500}
+  .field input,.field select,.field textarea{width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;transition:border-color .15s;outline:none}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);box-shadow:0 0 0 2px rgba(30,45,90,.1)}
+  .field textarea{resize:vertical;min-height:56px;line-height:1.5}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn-add{width:100%;padding:10px 16px;border-radius:var(--radius-sm);border:none;background:var(--navy);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s;margin-top:.25rem;letter-spacing:.02em}
+  .btn-add:hover{background:var(--navy-light)}
+  .btn-add:disabled{opacity:.6;cursor:not-allowed}
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.85rem;flex-wrap:wrap}
+  .filters{display:flex;gap:6px;flex-wrap:wrap}
+  .filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .15s;font-weight:500}
+  .filter-btn:hover{border-color:var(--navy);color:var(--navy)}
+  .filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .sort-wrap{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .sort-wrap label{font-size:12px;color:var(--text-muted)}
+  .sort-wrap select{font-size:12px;padding:5px 8px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:var(--surface);color:var(--text)}
+  .task-list{display:flex;flex-direction:column;gap:6px}
+  .task-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:10px;transition:border-color .15s,box-shadow .15s}
+  .task-card:hover{border-color:var(--border-hover);box-shadow:0 2px 8px rgba(30,45,90,.07)}
+  .task-card.done{opacity:.5}
+  .task-card.done .task-title{text-decoration:line-through;color:var(--text-muted)}
+  .task-card.priority-critical{border-left:3px solid #c0392b}
+  .task-card.priority-high{border-left:3px solid #d4810a}
+  .task-card.priority-medium{border-left:3px solid var(--navy)}
+  .task-card.priority-low{border-left:3px solid #2e7d32}
+  .check-btn{width:20px;height:20px;flex-shrink:0;border-radius:50%;border:1.5px solid var(--border-hover);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+  .check-btn.checked{background:var(--navy);border-color:var(--navy)}
+  .check-btn svg{display:none;width:10px;height:10px}
+  .check-btn.checked svg{display:block}
+  .task-body{flex:1;min-width:0}
+  .task-title{font-size:15px;font-weight:500;margin-bottom:3px;word-break:break-word;color:var(--text)}
+  .task-note{font-size:13px;color:var(--text-muted);margin-bottom:6px;word-break:break-word}
+  .task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.02em}
+  .p-critical{background:#fde8e6;color:#a32020}
+  .p-high{background:#fef3e0;color:#7a4a00}
+  .p-medium{background:#e8eef8;color:#1e2d5a}
+  .p-low{background:#e8f4e8;color:#1a5c1a}
+  .due-overdue{background:#fde8e6;color:#a32020}
+  .due-today{background:#fef3e0;color:#7a4a00}
+  .due-soon{background:#e8eef8;color:#1e2d5a}
+  .due-later{background:#edf0f6;color:#4a5a78}
+  .due-none{background:#edf0f6;color:#7a8a9a}
+  @media(prefers-color-scheme:dark){
+    .p-critical{background:#3a1010;color:#f09595}.p-high{background:#3a2a08;color:#fac775}
+    .p-medium{background:#0c1e40;color:#85b7eb}.p-low{background:#0e2e0e;color:#80c880}
+    .due-overdue{background:#3a1010;color:#f09595}.due-today{background:#3a2a08;color:#fac775}
+    .due-soon{background:#0c1e40;color:#85b7eb}.due-later{background:#1a2238;color:#7a8aaa}
+    .due-none{background:#1a2238;color:#5a6a88}
+  }
+  .del-btn{width:28px;height:28px;flex-shrink:0;border:none;background:transparent;cursor:pointer;border-radius:var(--radius-sm);color:var(--text-hint);display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .del-btn:hover{background:var(--bg);color:#c0392b}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:14px}
+  .empty svg{display:block;margin:0 auto 10px;opacity:.3}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+  .toast.show{opacity:1}
+  .sync-bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:1rem}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0}
+  .sync-dot.ok{background:#2e7d32}
+  .sync-dot.error{background:#c0392b}
+  .sync-dot.loading{background:#d4810a;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .setup-banner{background:#fffbe6;border:0.5px solid #f0d060;border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:13px;color:#5a4a00}
+  .setup-banner strong{display:block;margin-bottom:4px;font-size:14px}
+  .setup-banner input{width:100%;margin-top:8px;padding:7px 10px;border-radius:var(--radius-sm);border:0.5px solid #d0b840;background:#fff;font-size:13px;color:#1a1a00;outline:none}
+  .setup-banner button{margin-top:8px;padding:7px 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer}
+  @media(max-width:500px){.stats{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}.header-bar img{height:36px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header-bar">
+    <img src="data:image/jpeg;base64,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" alt="AEG Fuels">
+    <div class="header-right">
+      <span class="header-title">Work Tasks</span>
+      <span class="header-sub" id="task-count"></span>
+    </div>
+  </div>
+
+  <div class="setup-banner" id="setup-banner" style="display:none">
+    <strong>⚙️ One-time setup: paste your Google Apps Script URL</strong>
+    To sync tasks across devices, paste the Web App URL from your Google Apps Script deployment below.
+    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    <button onclick="saveScriptUrl()">Save &amp; Connect</button>
+  </div>
+
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-status">Checking connection...</span>
+    <span style="flex:1"></span>
+    <button onclick="loadTasks()" style="font-size:11px;padding:3px 10px;border-radius:12px;border:0.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer">↻ Refresh</button>
+  </div>
+
+  <div class="stats" id="stats-row"></div>
+
+  <div class="add-card">
+    <h2>Add task</h2>
+    <div class="field">
+      <label>Task name</label>
+      <input type="text" id="task-title" placeholder="What needs to get done?" maxlength="150" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea id="task-note" placeholder="Any extra context or details..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Priority</label>
+        <select id="task-priority">
+          <option value="critical">🔴 Critical</option>
+          <option value="high">🟠 High</option>
+          <option value="medium" selected>🔵 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Due date</label>
+        <input type="date" id="task-due">
+      </div>
+    </div>
+    <button class="btn-add" id="add-btn" onclick="addTask()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Add task
+    </button>
+  </div>
+
+  <div class="controls">
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('critical',this)">Critical</button>
+      <button class="filter-btn" onclick="setFilter('high',this)">High</button>
+      <button class="filter-btn" onclick="setFilter('medium',this)">Medium</button>
+      <button class="filter-btn" onclick="setFilter('low',this)">Low</button>
+      <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
+    </div>
+    <div class="sort-wrap">
+      <label>Sort</label>
+      <select id="sort-select" onchange="render()">
+        <option value="priority">Priority</option>
+        <option value="due">Due date</option>
+        <option value="added">Date added</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="task-list" id="task-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'work_tasks_v1';
+const URL_KEY = 'aeg_script_url';
+let tasks = [];
+let filter = 'all';
+let scriptUrl = localStorage.getItem(URL_KEY) || '';
+
+function saveScriptUrl() {
+  const val = document.getElementById('script-url-input').value.trim();
+  if (!val.startsWith('https://script.google.com')) { showToast('Invalid URL — must start with https://script.google.com'); return; }
+  scriptUrl = val;
+  localStorage.setItem(URL_KEY, scriptUrl);
+  document.getElementById('setup-banner').style.display = 'none';
+  showToast('Connected! Loading tasks...');
+  loadTasks();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = msg;
+}
+
+async function loadTasks() {
+  if (!scriptUrl) {
+    document.getElementById('setup-banner').style.display = 'block';
+    setSyncStatus('error', 'Not connected — paste your script URL above');
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) tasks = JSON.parse(saved);
+    render(); return;
+  }
+  setSyncStatus('loading', 'Syncing...');
+  try {
+    const res = await fetch(scriptUrl + '?action=get', {redirect:'follow'});
+    const data = await res.json();
+    tasks = data.tasks || [];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    setSyncStatus('ok', 'Synced · ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    setSyncStatus('error', 'Sync failed — showing local data');
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) tasks = JSON.parse(saved);
+  }
+  render();
+}
+
+async function addTask() {
+  const title = document.getElementById('task-title').value.trim();
+  if (!title) { document.getElementById('task-title').focus(); return; }
+  const task = {
+    id: Date.now().toString(),
+    title,
+    note: document.getElementById('task-note').value.trim(),
+    priority: document.getElementById('task-priority').value,
+    due: document.getElementById('task-due').value,
+    done: false,
+    added: Date.now()
+  };
+  document.getElementById('task-title').value = '';
+  document.getElementById('task-note').value = '';
+  document.getElementById('task-priority').value = 'medium';
+  document.getElementById('task-due').value = '';
+  document.getElementById('task-title').focus();
+
+  if (!scriptUrl) {
+    tasks.push(task); localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); render(); return;
+  }
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  setSyncStatus('loading', 'Saving...');
+  try {
+    await fetch(scriptUrl, {method:'POST', body: JSON.stringify({action:'add', task}), redirect:'follow'});
+    await loadTasks();
+    showToast('Task added!');
+  } catch(e) {
+    tasks.push(task); localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    setSyncStatus('error', 'Saved locally — sync failed');
+    render();
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add task';
+}
+
+async function toggleDone(id) {
+  const t = tasks.find(x => x.id == id);
+  if (!t) return;
+  t.done = !t.done;
+  render();
+  if (!scriptUrl) { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); return; }
+  setSyncStatus('loading', 'Saving...');
+  try {
+    await fetch(scriptUrl, {method:'POST', body: JSON.stringify({action:'update', task: t}), redirect:'follow'});
+    setSyncStatus('ok', 'Synced · ' + new Date().toLocaleTimeString());
+  } catch(e) { setSyncStatus('error', 'Sync failed'); }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+async function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  tasks = tasks.filter(x => x.id != id);
+  render();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  if (!scriptUrl) return;
+  setSyncStatus('loading', 'Saving...');
+  try {
+    await fetch(scriptUrl, {method:'POST', body: JSON.stringify({action:'delete', id}), redirect:'follow'});
+    setSyncStatus('ok', 'Synced · ' + new Date().toLocaleTimeString());
+  } catch(e) { setSyncStatus('error', 'Sync failed'); }
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function dueBadge(due) {
+  if (!due) return {cls:'due-none', label:'No due date'};
+  const t = today();
+  if (due < t) return {cls:'due-overdue', label:'Overdue'};
+  if (due === t) return {cls:'due-today', label:'Due today'};
+  const days = Math.round((new Date(due) - new Date(t)) / 86400000);
+  if (days <= 3) return {cls:'due-soon', label:`Due in ${days}d`};
+  const dt = new Date(due + 'T00:00:00');
+  return {cls:'due-later', label: dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+}
+
+function priorityOrder(p) { return {critical:0,high:1,medium:2,low:3}[p] ?? 4; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function render() {
+  const sort = document.getElementById('sort-select').value;
+  let list = [...tasks];
+  if (filter === 'done') list = list.filter(t => t.done);
+  else if (filter === 'overdue') list = list.filter(t => t.due && t.due < today() && !t.done);
+  else if (filter !== 'all') list = list.filter(t => t.priority === filter && !t.done);
+  else list = list.filter(t => !t.done);
+
+  if (sort === 'priority') list.sort((a,b) => priorityOrder(a.priority) - priorityOrder(b.priority));
+  else if (sort === 'due') list.sort((a,b) => { if(!a.due&&!b.due) return 0; if(!a.due) return 1; if(!b.due) return -1; return a.due.localeCompare(b.due); });
+  else list.sort((a,b) => b.added - a.added);
+
+  const el = document.getElementById('task-list');
+  if (!list.length) {
+    const msgs = {done:'No completed tasks yet.',overdue:'Nothing overdue — great!',all:'No tasks yet. Add one above.'};
+    el.innerHTML = `<div class="empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M9 9h6M9 13h4"/><path d="M8 2v4M16 2v4"/></svg>${msgs[filter]||`No ${filter}-priority tasks.`}</div>`;
+  } else {
+    el.innerHTML = list.map(t => {
+      const db = dueBadge(t.due);
+      const pLabel = {critical:'Critical',high:'High',medium:'Medium',low:'Low'}[t.priority];
+      return `<div class="task-card priority-${t.priority}${t.done?' done':''}">
+        <button class="check-btn${t.done?' checked':''}" onclick="toggleDone('${t.id}')" aria-label="${t.done?'Mark incomplete':'Mark complete'}">
+          <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="task-body">
+          <div class="task-title">${escHtml(t.title)}</div>
+          ${t.note?`<div class="task-note">${escHtml(t.note)}</div>`:''}
+          <div class="task-meta">
+            <span class="badge p-${t.priority}">${pLabel}</span>
+            <span class="badge ${db.cls}"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:3px"><rect x="1" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 1v3M9 1v3M1 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>${db.label}</span>
+          </div>
+        </div>
+        <button class="del-btn" onclick="deleteTask('${t.id}')" aria-label="Delete task">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M5 3.5l.5 8M9 3.5l-.5 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  const total = tasks.filter(t => !t.done).length;
+  const overdue = tasks.filter(t => t.due && t.due < today() && !t.done).length;
+  const done = tasks.filter(t => t.done).length;
+  const critical = tasks.filter(t => t.priority === 'critical' && !t.done).length;
+  document.getElementById('task-count').textContent = `${total} open task${total!==1?'s':''}`;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">Open</div></div>
+    <div class="stat"><div class="stat-num" style="color:#c0392b">${critical}</div><div class="stat-label">Critical</div></div>
+    <div class="stat"><div class="stat-num" style="color:#c0392b">${overdue}</div><div class="stat-label">Overdue</div></div>
+    <div class="stat"><div class="stat-num" style="color:#1e6b1e">${done}</div><div class="stat-label">Done</div></div>`;
+}
+
+document.getElementById('task-title').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+loadTasks();
+</script>
+</body>
+</html>
